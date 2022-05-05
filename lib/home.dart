@@ -10,15 +10,17 @@ import 'dart:convert';
 class MyHome extends StatelessWidget {
   const MyHome({Key? key}) : super(key: key);
 
-  Future<String> dataAPI() async
+  Future dataAPI() async
   {
 
     final http.Response res=await  http.get(Uri.parse('https://countriesnow.space/api/v0.1/countries/info?returns=currency,dialcode'));
 
-      var obj= json.decode(res.body);
+    if(res.statusCode==200)
+      {
+        var obj= json.decode(res.body);
+        return await obj;
 
-
-      return  res.body;
+      }else Exception("error");
 
   }
 
@@ -26,18 +28,29 @@ class MyHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("API"),
+      ),
       body: Center(
-        child: FutureBuilder<String>(
+        child: FutureBuilder(
           future:dataAPI() ,
           builder: ( ctx , snap){
-            return  ListView.builder(
-        itemBuilder: ( Context,  index) {
-       return ListTile(
-       title: Text(snap.data.toString(),style: TextStyle(fontSize: 22),),
-       );
-        },
-         itemCount: snap.data?.length,);
-
+            if (snap.data == null){
+              return Container(
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }else {
+              return ListView.builder(
+                itemBuilder: (Context, index) {
+                  return ListTile(
+                    title: Text(
+                      snap.data.toString(), style: TextStyle(fontSize: 22),),
+                  );
+                },
+              );
+            }
           },
         ),
       ) ,
